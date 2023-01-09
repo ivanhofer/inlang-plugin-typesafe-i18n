@@ -28,10 +28,10 @@ describe("plugin", async () => {
     });
 
     it("should be possible to query a message", () => {
-      const message = query(referenceResource).get({ id: "test" });
+      const message = query(referenceResource).get({ id: "HI" });
       expect(message).toBeDefined();
       expect(message?.pattern.elements[0].value).toBe(
-        "This message is used for testing purposes."
+        "Hi {name:string}! Please leave a star if you like this project: https://github.com/ivanhofer/typesafe-i18n"
       );
     });
   });
@@ -58,13 +58,12 @@ describe("plugin", async () => {
         updatedReferenceResource,
       ];
       await config.writeResources({ config, resources: updatedResources });
-      const json = JSON.parse(
+      const module =
         (await env.$fs.readFile(
-          `/example/${config.referenceLanguage}.json`,
+          `/example/${config.referenceLanguage}.ts`,
           "utf-8"
         )) as string
-      );
-      expect(json["new-message"]).toBe("Newly created message");
+      expect(module.includes('"new-message": "Newly created message"')).toBeTruthy();
     });
   });
 });
@@ -93,6 +92,8 @@ async function initializeTestEnvironment(): Promise<EnvironmentFunctions> {
     // create directory
     await $fs.mkdir(path, { recursive: true });
     for (const file of await nodeFs.promises.readdir("./" + path)) {
+      if (file.indexOf('.') === -1) continue;
+
       await $fs.writeFile(
         `${path}/${file}`,
         await nodeFs.promises.readFile(`./${path}/${file}`, "utf-8"),

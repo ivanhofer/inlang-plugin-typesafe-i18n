@@ -1,78 +1,47 @@
 import type { Config, EnvironmentFunctions } from "@inlang/core/config";
 import type * as ast from "@inlang/core/ast";
 
-/**
- * The plugin configuration.
- */
-export type PluginConfig = {
-  /**
-   * Defines the path pattern for the resources.
-   *
-   * Must include the `{language}` placeholder.
-   *
-   * @example
-   *  "./resources/{language}.json"
-   */
-  pathPattern: string;
-};
+// issues:
+//  - real typescript compilation does not work
+//  - $fs.readFile does not support nested files
+//  - $import can't be used to import a base64 encoded string
 
-/**
- * Reading resources.
- *
- * The function merges the args from Config['readResources'] with the pluginConfig
- * and EnvironmentFunctions.
- */
+export type PluginConfig = {};
+
+type ReadResourcesArgs = Parameters<Config["readResources"]>[0] & EnvironmentFunctions & { pluginConfig: PluginConfig }
+
 export async function readResources(
-  // merging the first argument from config (which contains all arguments)
-  // with the custom pluginConfig argument
-  args: Parameters<Config["readResources"]>[0] &
-    EnvironmentFunctions & { pluginConfig: PluginConfig }
+  { config, $fs, $import }: ReadResourcesArgs
 ): ReturnType<Config["readResources"]> {
   const result: ast.Resource[] = [];
-  for (const language of args.config.languages) {
-    const resourcePath = args.pluginConfig.pathPattern.replace(
-      "{language}",
-      language
-    );
-    // reading the json
-    const json = JSON.parse(
-      (await args.$fs.readFile(resourcePath, "utf-8")) as string
-    );
-    result.push(parseResource(json, language));
+
+  for (const language of config.languages) {
+    const dictionary = await getDictionaryForLocale($fs, $import, language)
+    result.push(parseResource(dictionary, language));
   }
-  return result;
+
+  return result
 }
 
-/**
- * Writing resources.
- *
- * The function merges the args from Config['readResources'] with the pluginConfig
- * and EnvironmentFunctions.
- */
-export async function writeResources(
-  args: Parameters<Config["writeResources"]>[0] &
-    EnvironmentFunctions & { pluginConfig: PluginConfig }
-): ReturnType<Config["writeResources"]> {
-  for (const resource of args.resources) {
-    const resourcePath = args.pluginConfig.pathPattern.replace(
-      "{language}",
-      resource.languageTag.language
-    );
-    await args.$fs.writeFile(resourcePath, serializeResource(resource));
-  }
+const getDictionaryForLocale = async ($fs: EnvironmentFunctions['$fs'], $import: EnvironmentFunctions['$import'], locale: string) => {
+  const baseDictionary = (await $fs.readFile(`${locale}.ts`, 'utf-8')).toString()
+  const withoutImports = baseDictionary.split('\n').filter(line => !line.trim().startsWith('import ')).join('\n')
+  const withoutTypes = withoutImports.replace(/:.*=/g, ' =')
+
+  // this does not work
+  // const moduleWithMimeType = "data:application/javascript;base64," + Buffer.from(withoutTypes).toString('base64');
+  // return (await $import(moduleWithMimeType)).default;
+
+  await $fs.writeFile(`${locale}.temp.js`, withoutTypes)
+  const module = (await $import(`${locale}.temp.js`)).default;
+  await $fs.rm(`${locale}.temp.js`)
+  return module
 }
 
-/**
- * Parses a resource.
- *
- * @example
- *  parseResource({ "test": "Hello world" }, "en")
- */
-function parseResource(
-  /** flat JSON refers to the flatten function from https://www.npmjs.com/package/flat */
+const parseResource = (
   flatJson: Record<string, string>,
   language: string
-): ast.Resource {
+): ast.Resource => {
   return {
     type: "Resource",
     languageTag: {
@@ -85,13 +54,7 @@ function parseResource(
   };
 }
 
-/**
- * Parses a message.
- *
- * @example
- *  parseMessage("test", "Hello world")
- */
-function parseMessage(id: string, value: string): ast.Message {
+const parseMessage = (id: string, value: string): ast.Message => {
   return {
     type: "Message",
     id: {
@@ -102,28 +65,34 @@ function parseMessage(id: string, value: string): ast.Message {
   };
 }
 
-/**
- * Serializes a resource.
- *
- * The function unflattens, and therefore reverses the flattening
- * in parseResource, of a given object. The result is a stringified JSON
- * that is beautified by adding (null, 2) to the arguments.
- *
- * @example
- *  serializeResource(resource)
- */
-function serializeResource(resource: ast.Resource): string {
-  const json = Object.fromEntries(resource.body.map(serializeMessage));
-  // stringyify the object with beautification.
-  return JSON.stringify(json, null, 2);
+// --------------------------------------------------------------------------------------------------------------------
+
+type WriteResourcesArgs = Parameters<Config["writeResources"]>[0] & EnvironmentFunctions & { pluginConfig: PluginConfig }
+
+export async function writeResources(
+  args: WriteResourcesArgs
+): ReturnType<Config["writeResources"]> {
+  for (const resource of args.resources) {
+    const locale = resource.languageTag.language
+    const dictionary = serializeResource(resource)
+
+    const type = locale === args.config.referenceLanguage ? 'BaseTranslation' : 'Translation'
+    const template = `import type { ${type} } from './src/i18n/i18n-types'
+
+const ${locale}: ${type} = ${dictionary}
+
+export default ${locale}`
+
+    await args.$fs.writeFile(`${locale}.ts`, template);
+  }
 }
 
-/**
- * Serializes a message.
- *
- * Note that only the first element of the pattern is used as inlang, as of v0.3,
- * does not support more than 1 element in a pattern.
- */
+const serializeResource = (resource: ast.Resource): string => {
+  const json = Object.fromEntries(resource.body.map(serializeMessage));
+  // stringify the object with beautification
+  return JSON.stringify(json, null, 3);
+}
+
 function serializeMessage(message: ast.Message): [id: string, value: string] {
   return [message.id.name, message.pattern.elements[0].value];
 }
