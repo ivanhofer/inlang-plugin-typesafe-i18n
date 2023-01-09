@@ -1,5 +1,5 @@
 {
-  "name": "inlang-plugin-x-select-a-name-x",
+  "name": "inlang-plugin-typesafe-i18n",
   "type": "module",
   "module": "dist/index.js",
   "scripts": {
