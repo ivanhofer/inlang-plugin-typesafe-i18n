@@ -1,0 +1,22 @@
+{
+  "name": "inlang-plugin-x-select-a-name-x",
+  "type": "module",
+  "module": "dist/index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:watch\" \"npm run dev:test\"",
+    "dev:test": "vitest",
+    "dev:watch": "esbuild ./src/index.ts --bundle --platform=browser --format=esm --minify --outfile=./dist/index.js --watch",
+    "build": "esbuild ./src/index.ts --bundle --platform=browser --format=esm --minify --outfile=./dist/index.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@inlang/core": "^0.3.0-prerelease.6"
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0",
+    "esbuild": "^0.16.11",
+    "memfs": "^3.4.12",
+    "typescript": "^4.9.4",
+    "vitest": "^0.26.2"
+  }
+}
