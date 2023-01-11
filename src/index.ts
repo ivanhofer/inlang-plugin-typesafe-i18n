@@ -24,7 +24,7 @@ export async function readResources(
 }
 
 const getDictionaryForLocale = async ($fs: EnvironmentFunctions['$fs'], $import: EnvironmentFunctions['$import'], locale: string) => {
-  const baseDictionary = (await $fs.readFile(`${locale}.ts`, 'utf-8')).toString()
+  const baseDictionary = (await $fs.readFile(`src/i18n/${locale}/index.ts`, 'utf-8')).toString()
   const withoutImports = baseDictionary.split('\n').filter(line => !line.trim().startsWith('import ')).join('\n')
   const withoutTypes = withoutImports.replace(/:.*=/g, ' =')
 

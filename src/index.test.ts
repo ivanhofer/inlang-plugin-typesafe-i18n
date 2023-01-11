@@ -72,10 +72,10 @@ describe("plugin", async () => {
  * Initializes the environment.
  *
  * Copies files in /dist and /example to the in-memory file system.
- * Note: Nested directories are not copied.
  */
 async function initializeTestEnvironment(): Promise<EnvironmentFunctions> {
   const $fs = memfs.promises;
+
   // change the working directory to the inlang config directory to resolve relative paths
   process.cwd = () => "/example";
   const $import = initialize$import({
@@ -83,23 +83,34 @@ async function initializeTestEnvironment(): Promise<EnvironmentFunctions> {
     fs: $fs,
     fetch,
   });
+
   const env = {
     $fs,
     $import,
   };
-  // only /dist and /example are needed and therefore copied
-  for (const path of ["/dist", "/example"]) {
+
+  const copyDirectory = async (path: string) => {
     // create directory
     await $fs.mkdir(path, { recursive: true });
-    for (const file of await nodeFs.promises.readdir("./" + path)) {
-      if (file.indexOf('.') === -1) continue;
 
-      await $fs.writeFile(
-        `${path}/${file}`,
-        await nodeFs.promises.readFile(`./${path}/${file}`, "utf-8"),
-        { encoding: "utf-8" }
-      );
+    for (const file of await nodeFs.promises.readdir("./" + path)) {
+      const isFile = file.indexOf('.') > -1
+      if (isFile) {
+        await $fs.writeFile(
+          `${path}/${file}`,
+          await nodeFs.promises.readFile(`./${path}/${file}`, "utf-8"),
+          { encoding: "utf-8" }
+        );
+      } else {
+        await copyDirectory(`${path}/${file}`)
+      };
     }
   }
+
+  // only /dist and /example are needed and therefore copied
+  for (const path of ["/dist", "/example"]) {
+    await copyDirectory(path)
+  }
+
   return env;
 }
