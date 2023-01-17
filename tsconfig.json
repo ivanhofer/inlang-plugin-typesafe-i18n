@@ -13,6 +13,9 @@
     // to improve bundling, types should explicitly importes as types
     "importsNotUsedAsValues": "error",
     // esmoduleinterop is oftentimes required
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "checkJs": true,
+    "allowJs": true,
+    "outDir": "dist",
   }
 }
