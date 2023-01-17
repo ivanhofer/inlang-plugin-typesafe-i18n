@@ -6,10 +6,9 @@ import { getConfig } from 'typesafe-i18n/config'
 //  - real typescript compilation does not work
 //  - $import can't be used to import a base64 encoded string
 
-export type PluginConfig = {};
+type ReadResourcesArgs = Parameters<Config["readResources"]>[0] & EnvironmentFunctions
 
-type ReadResourcesArgs = Parameters<Config["readResources"]>[0] & EnvironmentFunctions & { pluginConfig: PluginConfig }
-
+// TODO: this should come from an util package
 const resolve = (...parts: string[]): string => parts.map(p => {
   while (p.startsWith('/')) {
     p = p.substring(1)
@@ -78,7 +77,7 @@ const parseMessage = (id: string, value: string): ast.Message => {
 
 // --------------------------------------------------------------------------------------------------------------------
 
-type WriteResourcesArgs = Parameters<Config["writeResources"]>[0] & EnvironmentFunctions & { pluginConfig: PluginConfig }
+type WriteResourcesArgs = Parameters<Config["writeResources"]>[0] & EnvironmentFunctions
 
 export async function writeResources(
   { $fs, config, resources }: WriteResourcesArgs
