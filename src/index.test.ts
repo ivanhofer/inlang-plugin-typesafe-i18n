@@ -1,5 +1,5 @@
 // @ts-ignore
-import { initializeConfig } from "../example/inlang.config.js";
+import { defineConfig } from "../example/inlang.config.js";
 import { describe, it, expect } from "vitest";
 import nodeFs from "node:fs";
 import { fs as memfs } from "memfs";
@@ -11,7 +11,7 @@ import {
 import { query } from "@inlang/core/query";
 
 const env = await initializeTestEnvironment();
-const config = (await initializeConfig(env)) as Config;
+const config = (await defineConfig(env)) as Config;
 
 describe("plugin", async () => {
   const resources = await config.readResources({ config });

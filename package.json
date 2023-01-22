@@ -11,16 +11,16 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "@inlang/core": "^0.3.0-prerelease.6"
+    "@inlang/core": "^0.3.0"
   },
   "devDependencies": {
     "concurrently": "^7.6.0",
-    "esbuild": "^0.16.11",
+    "esbuild": "^0.17.4",
     "husky": "^8.0.3",
-    "memfs": "^3.4.12",
-    "typesafe-i18n": "^5.19.1",
+    "memfs": "^3.4.13",
+    "typesafe-i18n": "^5.20.0",
     "typescript": "^4.9.4",
-    "vitest": "^0.26.2"
+    "vitest": "^0.27.3"
   },
   "volta": {
     "node": "18.13.0"

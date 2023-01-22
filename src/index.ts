@@ -50,13 +50,13 @@ const getDictionaryForLocale = async ($fs: EnvironmentFunctions['$fs'], $import:
 
 const parseResource = (
   flatJson: Record<string, string>,
-  language: string
+  locale: string
 ): ast.Resource => {
   return {
     type: "Resource",
     languageTag: {
       type: "LanguageTag",
-      language: language,
+      name: locale,
     },
     body: Object.entries(flatJson).map(([id, value]) =>
       parseMessage(id, value)
@@ -85,7 +85,7 @@ export async function writeResources(
   const typesafeI18nConfig = await getConfig($fs)
 
   for (const resource of resources) {
-    const locale = resource.languageTag.language
+    const locale = resource.languageTag.name
     const dictionary = serializeResource(resource)
 
     const type = locale === config.referenceLanguage ? 'BaseTranslation' : 'Translation'
