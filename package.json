@@ -7,7 +7,9 @@
     "dev:test": "vitest",
     "dev:watch": "esbuild ./src/index.ts --bundle --platform=browser --format=esm --minify --outfile=./dist/index.js --watch",
     "build": "esbuild ./src/index.ts --bundle --platform=browser --format=esm --minify --outfile=./dist/index.js",
-    "test": "vitest run",
+    "test": "npm run tsc && npm run vitest",
+    "vitest": "vitest run",
+    "tsc": "tsc --noEmit",
     "prepare": "husky install"
   },
   "dependencies": {
