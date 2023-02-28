@@ -2,6 +2,9 @@
   "name": "inlang-plugin-typesafe-i18n",
   "type": "module",
   "module": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js"
+  },
   "scripts": {
     "dev": "concurrently -n build,test -c auto \"npm run dev:watch\" \"npm run dev:test\"",
     "dev:test": "vitest",
