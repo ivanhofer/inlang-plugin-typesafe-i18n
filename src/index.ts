@@ -34,15 +34,18 @@ export async function readResources(
 }
 
 const getDictionaryForLocale = async ($fs: EnvironmentFunctions['$fs'], $import: EnvironmentFunctions['$import'], outputPath: string, locale: string) => {
+  // TODO: create a better, less hacky version
   const baseDictionary = (await $fs.readFile(resolve(outputPath, `${locale}/index.ts`), 'utf-8')).toString()
   const withoutImports = baseDictionary.split('\n').filter(line => !line.trim().startsWith('import ')).join('\n')
   const withoutTypes = withoutImports.replace(/:.*=/g, ' =')
+  const withoutSatisfies = withoutTypes.replace(/ satisfies.*\/n/g, '\n')
 
   // this does not work
   // const moduleWithMimeType = "data:application/javascript;base64," + Buffer.from(withoutTypes).toString('base64');
   // return (await $import(moduleWithMimeType)).default;
 
-  await $fs.writeFile(`${locale}.temp.js`, withoutTypes)
+  await $fs.writeFile(`${locale}.temp.js`, withoutSatisfies)
+  // TODO: check if this import really does not get cached
   const module = (await $import(`${locale}.temp.js`)).default;
   await $fs.rm(`${locale}.temp.js`)
   return module
@@ -90,6 +93,7 @@ export async function writeResources(
 
     const type = locale === config.referenceLanguage ? 'BaseTranslation' : 'Translation'
     // TODO: path could be wrong if esmImports=true
+    // TODO: export utility type from `typesafe-i18n` to get correct string e.g. with `satisfies` syntax
     const template = `import type { ${type} } from './${resolve(typesafeI18nConfig.outputPath, typesafeI18nConfig.typesFileName)}'
 
 const ${locale}: ${type} = ${dictionary}
