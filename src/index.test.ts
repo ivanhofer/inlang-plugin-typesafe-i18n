@@ -5,8 +5,8 @@ import nodeFs from "node:fs";
 import { fs as memfs } from "memfs";
 import {
   initialize$import,
-  Config,
-  EnvironmentFunctions,
+  type Config,
+  type EnvironmentFunctions,
 } from "@inlang/core/config";
 import { query } from "@inlang/core/query";
 
@@ -79,7 +79,6 @@ async function initializeTestEnvironment(): Promise<EnvironmentFunctions> {
   // change the working directory to the inlang config directory to resolve relative paths
   process.cwd = () => "/example";
   const $import = initialize$import({
-    workingDirectory: "/example",
     fs: $fs,
     fetch,
   });

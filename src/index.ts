@@ -4,7 +4,6 @@ import { getConfig } from 'typesafe-i18n/config'
 
 // issues:
 //  - real typescript compilation does not work
-//  - $import can't be used to import a base64 encoded string
 
 type ReadResourcesArgs = Parameters<Config["readResources"]>[0] & EnvironmentFunctions
 
@@ -40,15 +39,8 @@ const getDictionaryForLocale = async ($fs: EnvironmentFunctions['$fs'], $import:
   const withoutTypes = withoutImports.replace(/:.*=/g, ' =')
   const withoutSatisfies = withoutTypes.replace(/ satisfies.*\/n/g, '\n')
 
-  // this does not work
-  // const moduleWithMimeType = "data:application/javascript;base64," + Buffer.from(withoutTypes).toString('base64');
-  // return (await $import(moduleWithMimeType)).default;
-
-  await $fs.writeFile(`${locale}.temp.js`, withoutSatisfies)
-  // TODO: check if this import really does not get cached
-  const module = (await $import(`${locale}.temp.js`)).default;
-  await $fs.rm(`${locale}.temp.js`)
-  return module
+  const moduleWithMimeType = "data:application/javascript," + encodeURIComponent(withoutSatisfies)
+  return await import(/* @vite-ignore */ moduleWithMimeType)
 }
 
 const parseResource = (
@@ -111,5 +103,22 @@ const serializeResource = (resource: ast.Resource): string => {
 }
 
 function serializeMessage(message: ast.Message): [id: string, value: string] {
-  return [message.id.name, message.pattern.elements[0].value];
+  return [message.id.name, serializePattern(message.pattern)];
+}
+
+function serializePattern(pattern: ast.Pattern): string {
+  return pattern.elements.map(serializePatternElement).join("");
+}
+
+function serializePatternElement(element: ast.Pattern['elements'][number]): string {
+  switch (element.type) {
+    case "Text": return element.value;
+    case "Placeholder": return serializeExpression(element.placeholder);
+
+  }
+}
+function serializeExpression(expression: ast.Expression): string {
+  switch (expression.type) {
+    case "Expression": return `{${expression.expression.name}}`;
+  }
 }
