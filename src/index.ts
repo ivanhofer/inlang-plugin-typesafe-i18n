@@ -1,9 +1,11 @@
 import type { Config, EnvironmentFunctions } from "@inlang/core/config";
 import type * as ast from "@inlang/core/ast";
-import { getConfig } from 'typesafe-i18n/config'
+import { getConfig, getLocaleInformation } from 'typesafe-i18n/config'
 
 // issues:
 //  - real typescript compilation does not work
+
+export { getLocaleInformation }
 
 type ReadResourcesArgs = Parameters<Config["readResources"]>[0] & EnvironmentFunctions
 
