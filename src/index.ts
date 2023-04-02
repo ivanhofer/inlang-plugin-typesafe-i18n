@@ -19,20 +19,20 @@ const resolve = (...parts: string[]): string => parts.map(p => {
 }).join('/')
 
 export async function readResources(
-  { config, $fs, $import }: ReadResourcesArgs
+  { config, $fs }: ReadResourcesArgs
 ): ReturnType<Config["readResources"]> {
   const typesafeI18nConfig = await getConfig($fs)
 
   const result: ast.Resource[] = [];
   for (const language of config.languages) {
-    const dictionary = await getDictionaryForLocale($fs, $import, typesafeI18nConfig.outputPath, language)
+    const dictionary = await getDictionaryForLocale($fs, typesafeI18nConfig.outputPath, language)
     result.push(parseResource(dictionary, language));
   }
 
   return result
 }
 
-const getDictionaryForLocale = async ($fs: EnvironmentFunctions['$fs'], $import: EnvironmentFunctions['$import'], outputPath: string, locale: string) => {
+const getDictionaryForLocale = async ($fs: EnvironmentFunctions['$fs'], outputPath: string, locale: string) => {
   // TODO: create a better, less hacky version
   const baseDictionary = (await $fs.readFile(resolve(outputPath, `${locale}/index.ts`), 'utf-8')).toString()
   const withoutImports = baseDictionary.split('\n').filter(line => !line.trim().startsWith('import ')).join('\n')
@@ -40,7 +40,7 @@ const getDictionaryForLocale = async ($fs: EnvironmentFunctions['$fs'], $import:
   const withoutSatisfies = withoutTypes.replace(/ satisfies.*\/n/g, '\n')
 
   const moduleWithMimeType = "data:application/javascript," + encodeURIComponent(withoutSatisfies)
-  return await import(/* @vite-ignore */ moduleWithMimeType)
+  return (await import(/* @vite-ignore */ moduleWithMimeType)).default
 }
 
 const parseResource = (
@@ -60,6 +60,7 @@ const parseResource = (
 }
 
 const parseMessage = (id: string, value: string): ast.Message => {
+  // TODO: also parse variables
   return {
     type: "Message",
     id: {
