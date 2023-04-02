@@ -93,7 +93,7 @@ const ${locale}: ${type} = ${dictionary}
 
 export default ${locale}`
 
-    await $fs.writeFile(`${locale}.ts`, template);
+    await $fs.writeFile(resolve(typesafeI18nConfig.outputPath, `${locale}/index.ts`), template);
   }
 }
 

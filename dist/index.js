@@ -5,4 +5,4 @@ var p=async e=>({baseLocale:"en",tempPath:"./node_modules/typesafe-i18n/temp-out
 
 const ${r}: ${o} = ${i}
 
-export default ${r}`;await e.writeFile(`${r}.ts`,c)}}var d=e=>{let t=Object.fromEntries(e.body.map(w));return JSON.stringify(t,null,3)};function w(e){return[e.id.name,h(e.pattern)]}function h(e){return e.elements.map(R).join("")}function R(e){switch(e.type){case"Text":return e.value;case"Placeholder":return v(e.placeholder)}}function v(e){switch(e.type){case"Expression":return`{${e.expression.name}}`}}export{b as readResources,P as writeResources};
+export default ${r}`;await e.writeFile(l(n.outputPath,`${r}/index.ts`),c)}}var d=e=>{let t=Object.fromEntries(e.body.map(w));return JSON.stringify(t,null,3)};function w(e){return[e.id.name,h(e.pattern)]}function h(e){return e.elements.map(R).join("")}function R(e){switch(e.type){case"Text":return e.value;case"Placeholder":return v(e.placeholder)}}function v(e){switch(e.type){case"Expression":return`{${e.expression.name}}`}}export{b as readResources,P as writeResources};
