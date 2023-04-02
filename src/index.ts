@@ -89,7 +89,7 @@ export async function writeResources(
     const type = locale === config.referenceLanguage ? 'BaseTranslation' : 'Translation'
     // TODO: path could be wrong if esmImports=true
     // TODO: export utility type from `typesafe-i18n` to get correct string e.g. with `satisfies` syntax
-    const template = `import type { ${type} } from './${resolve(typesafeI18nConfig.outputPath, typesafeI18nConfig.typesFileName)}'
+    const template = `import type { ${type} } from '${resolve(typesafeI18nConfig.outputPath, typesafeI18nConfig.typesFileName)}'
 
 const ${locale}: ${type} = ${dictionary}
 
