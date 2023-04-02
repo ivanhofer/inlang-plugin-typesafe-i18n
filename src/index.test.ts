@@ -60,7 +60,7 @@ describe("plugin", async () => {
       await config.writeResources({ config, resources: updatedResources });
       const module =
         (await env.$fs.readFile(
-          `/example/${config.referenceLanguage}.ts`,
+          `/example/i18n/${config.referenceLanguage}/index.ts`,
           "utf-8"
         )) as string
       expect(module.includes('"new-message": "Newly created message"')).toBeTruthy();
