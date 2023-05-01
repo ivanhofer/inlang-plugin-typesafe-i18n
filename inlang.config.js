@@ -2,10 +2,9 @@
  * @type {import("@inlang/core/config").DefineConfig}
  */
 export async function defineConfig(env) {
-  // importing plugin from local file for testing purposes
-  const plugin = await env.$import("../dist/index.js");
+  const plugin = await env.$import("./dist/index.js");
 
-  const { base, locales } = await plugin.getLocaleInformation(env.$fs)
+  const { base, locales } = await plugin.getLocaleInformation(env.$fs);
 
   return {
     referenceLanguage: base,
