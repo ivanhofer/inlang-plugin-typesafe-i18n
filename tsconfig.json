@@ -9,9 +9,7 @@
     "skipLibCheck": true,
     "checkJs": true,
     "allowJs": true,
-    "outDir": "dist",
+    "outDir": "dist"
   },
-  "include": [
-    "src/**/*"
-  ],
+  "include": ["src/**/*", "build.js"]
 }
