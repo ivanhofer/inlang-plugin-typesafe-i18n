@@ -1,35 +1,36 @@
-import { context } from 'esbuild'
-import { NodeModulesPolyfillPlugin } from '@esbuild-plugins/node-modules-polyfill'
+/**
+ * This is the build script for the project.
+ *
+ * It takes the source code and bundles it into a single file
+ * that can be imported into an inlang project.
+ */
 
-const ctx = await context({
-	entryPoints: ['src/index.ts'],
-	outfile: 'dist/index.js',
-	bundle: true,
-	minify: !process.env.DEV,
-	format: 'esm',
-	platform: 'browser',
-	target: 'es2020',
+import { context } from 'esbuild'
+import { pluginBuildConfig } from "@inlang/core/plugin"
+
+const options = await pluginBuildConfig({
+	entryPoints: ["./src/index.js"],
+	outfile: "./dist/index.js",
+	minify: true,
 	plugins: [
-		// by default node polyfills are included
-		// as a lot of npm packages that deal with files
-		// use built-in node modules
-		NodeModulesPolyfillPlugin(),
 		{
-			name: 'logger',
-			setup: ({ onEnd }) => onEnd(() => console.info('🎉 changes processed'))
-		}
+			name: "logger",
+			setup: ({ onEnd }) => onEnd(() => console.info("🎉 changes processed")),
+		},
 	],
 })
 
+const ctx = await context(options)
+
 if (process.env.DEV) {
 	await ctx.watch()
-	console.info('👀 watching for changes...')
+	console.info("👀 watching for changes...")
 	process.on('exit', async () => {
 		console.info('🙈 process killed')
 		await ctx.dispose()
 	})
 } else {
 	await ctx.rebuild()
-	console.info('✅ build complete')
+	console.info("✅ build complete")
 	await ctx.dispose()
 }
