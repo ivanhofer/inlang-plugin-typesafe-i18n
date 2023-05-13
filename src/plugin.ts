@@ -3,12 +3,13 @@ import type { InlangEnvironment } from "@inlang/core/environment"
 import type * as ast from "@inlang/core/ast"
 import { getConfig, getLocaleInformation } from "typesafe-i18n/config"
 import { createPlugin } from "@inlang/core/plugin"
+import type { readdir } from "node:fs/promises"
 
 export const plugin = createPlugin(({ env }) => ({
   id: "ivanhofer.inlang-plugin-typesafe-i18n",
   async config() {
     // @ts-expect-error - the types slightly differ; should work regardless
-    const { base, locales } = await getLocaleInformation(env.$fs)
+    const { base, locales } = await getLocaleInformation(patchFs(env.$fs))
 
     return {
       referenceLanguage: base,
@@ -39,10 +40,27 @@ const resolve = (...parts: string[]): string =>
     })
     .join("/")
 
+const patchFs = (fs: InlangEnvironment["$fs"]) => {
+  return {
+    ...fs,
+    readdir: async (path: string, options?: Parameters<typeof readdir>[1]) => {
+      const result = await fs.readdir(path)
+      if (!options?.withFileTypes) return result
+
+      return result.map(name => ({
+        name,
+        isDirectory: () => !(name.endsWith('.ts') || name.endsWith('.js')),
+      }))
+    }
+  } as unknown as InlangEnvironment["$fs"]
+}
+
 async function readResources({
   config,
-  $fs,
+  $fs: rawFs,
 }: ReadResourcesArgs): ReturnType<InlangConfig["readResources"]> {
+  const $fs = patchFs(rawFs)
+
   // @ts-expect-error - the types slightly differ; should work regardless
   const typesafeI18nConfig = await getConfig($fs)
 
@@ -116,10 +134,12 @@ type WriteResourcesArgs = Parameters<InlangConfig["writeResources"]>[0] &
   InlangEnvironment
 
 async function writeResources({
-  $fs,
+  $fs: rawFs,
   config,
   resources,
 }: WriteResourcesArgs): ReturnType<InlangConfig["writeResources"]> {
+  const $fs = patchFs(rawFs)
+
   // @ts-expect-error - the types slightly differ; should work regardless
   const typesafeI18nConfig = await getConfig($fs)
 
@@ -148,7 +168,7 @@ export default ${locale}`
 
 const serializeResource = (resource: ast.Resource): string => {
   const json = Object.fromEntries(resource.body.map(serializeMessage))
-	// stringify the object with beautification
+  // stringify the object with beautification
   return JSON.stringify(json, null, 3)
 }
 

@@ -1,28 +1,26 @@
-import * as module from '../example/inlang.config.js'
+import * as module from '../inlang.config.js'
 import { describe, test, expect } from "vitest"
-import nodeFs from "node:fs"
-import { fs as memfs } from "memfs"
+import nodeFs from "node:fs/promises"
 import { query } from "@inlang/core/query"
-import { setupConfig, type InlangConfig } from '@inlang/core/config'
-import { initialize$import, type InlangEnvironment } from '@inlang/core/environment'
+import { setupConfig } from '@inlang/core/config'
 import type { Resource } from '@inlang/core/ast'
-
-const env = await initializeTestEnvironment()
-const config = (await setupConfig({ module: module, env })) as InlangConfig
-
 import { mockEnvironment, testConfig } from "@inlang/core/test"
 import fs from "node:fs/promises"
 
+const env = await mockEnvironment({
+  copyDirectory: {
+    fs,
+    paths: ["./dist", "./example"],
+  },
+})
+
+await env.$fs.writeFile(
+  './.typesafe-i18n.json',
+  await nodeFs.readFile('./.typesafe-i18n.json', { encoding: 'utf-8' })
+)
+const config = await setupConfig({ module, env })
+
 test("inlang's config validation should pass", async () => {
-  const env = await mockEnvironment({
-    copyDirectory: {
-      fs: fs,
-      paths: ["./dist", "./example"],
-    },
-  })
-
-  const config = await setupConfig({ module, env })
-
   const [isOk, error] = await testConfig({ config })
   if (error) {
     throw error
@@ -84,49 +82,3 @@ describe("plugin", async () => {
     })
   })
 })
-
-/**
- * Initializes the environment.
- *
- * Copies files in /dist and /example to the in-memory file system.
- */
-async function initializeTestEnvironment(): Promise<InlangEnvironment> {
-  const $fs = memfs.promises as any
-
-  // change the working directory to the inlang config directory to resolve relative paths
-  process.cwd = () => "/example"
-  const $import = initialize$import({
-    fs: $fs,
-    fetch,
-  })
-
-  const env = {
-    $fs,
-    $import,
-  }
-
-  const copyDirectory = async (path: string) => {
-    // create directory
-    await $fs.mkdir(path, { recursive: true })
-
-    for (const file of await nodeFs.promises.readdir("./" + path)) {
-      const isFile = file.indexOf('.') > -1
-      if (isFile) {
-        await $fs.writeFile(
-          `${path}/${file}`,
-          await nodeFs.promises.readFile(`./${path}/${file}`, "utf-8"),
-          { encoding: "utf-8" }
-        )
-      } else {
-        await copyDirectory(`${path}/${file}`)
-      }
-    }
-  }
-
-  // only /dist and /example are needed and therefore copied
-  for (const path of ["/dist", "/example"]) {
-    await copyDirectory(path)
-  }
-
-  return env
-}
