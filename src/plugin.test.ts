@@ -60,6 +60,13 @@ describe("plugin", async () => {
       expect(message).toBeDefined()
       expect(message!.pattern.elements[0].value).toBe("{{zero|one|two|few|many|other}}")
     })
+
+    test("should be possible to query a nested message with plural part", () => {
+      const message = query(referenceResource).get({ id: "nested.PLURAL" })
+      expect(message).toBeDefined()
+      expect(message!.pattern.elements[0].value).toBe("hello banana")
+      expect(message!.pattern.elements[1].value).toBe("{{s}}")
+    })
   })
 
   describe("writeResources()", async () => {
@@ -79,13 +86,7 @@ describe("plugin", async () => {
             },
           },
         })
-      const updatedResources = [
-        ...resources.filter(
-          (resource) =>
-            resource.languageTag.name !== config.referenceLanguage
-        ),
-        updatedReferenceResource as Resource,
-      ]
+      const updatedResources = [updatedReferenceResource as Resource]
       await config.writeResources({ config, resources: updatedResources })
       const module =
         (await env.$fs.readFile(
@@ -94,6 +95,33 @@ describe("plugin", async () => {
         )) as string
 
       expect(module.includes('"new-message": "Newly created message with {variable}!"')).toBeTruthy()
+    })
+
+    test("should serialize a nested resource", async () => {
+      const [updatedReferenceResource] = query(referenceResource)
+        .create({
+          message: {
+            id: { type: "Identifier", name: "nested.plural.message" },
+            type: "Message",
+            pattern: {
+              type: "Pattern",
+              elements: [
+                { type: "Text", value: "{{Banane|Bananen}}" },
+              ],
+            },
+          },
+        })
+      const updatedResources = [updatedReferenceResource as Resource]
+      await config.writeResources({ config, resources: updatedResources })
+      const module =
+        (await env.$fs.readFile(
+          `./example/i18n/${config.referenceLanguage}/index.ts`,
+          { encoding: "utf-8" }
+        )) as string
+
+      expect(module.includes('"nested": {')).toBeTruthy()
+      expect(module.includes('"plural": {')).toBeTruthy()
+      expect(module.includes('message": "{{Banane|Bananen}}"')).toBeTruthy()
     })
   })
 })

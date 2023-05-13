@@ -113,11 +113,16 @@ const parseResource = (
     },
     body: Object.entries(flatJson).map(([id, value]) =>
       parseMessage(id, value)
-    ),
+    ).flat(),
   }
 }
 
-const parseMessage = (id: string, value: string): ast.Message => {
+const parseMessage = (id: string, value: string | Record<string, string>): ast.Message | ast.Message[] => {
+  if (typeof value === 'object')
+    return Object.entries(value).map(([entryId, entryValue]) =>
+      parseMessage(`${id}.${entryId}`, entryValue)
+    ).flat()
+
   const parsedMessage = experimentalParseMessage(value)
 
   return {
@@ -206,7 +211,21 @@ export default ${locale}`
 }
 
 const serializeResource = (resource: ast.Resource): string => {
-  const json = Object.fromEntries(resource.body.map(serializeMessage))
+  const json = {} as Record<string, any>
+
+  resource.body.map(serializeMessage).forEach(([id, value]) => {
+    const idParts = id.split('.')
+    let current = json
+    for (let i = 0; i < idParts.length; i++) {
+      const part = idParts[i]
+      if (i === idParts.length - 1) {
+        current[part] = value
+      } else {
+        if (!current[part]) current[part] = {}
+        current = current[part]
+      }
+    }
+  })
   // stringify the object with beautification
   return JSON.stringify(json, null, 3)
 }

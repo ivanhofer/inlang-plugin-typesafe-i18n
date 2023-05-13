@@ -20,15 +20,17 @@ type RootTranslation = {
 	*/
 	HI: RequiredParams<'name'>
 	/**
-	 * "h​e​l​l​o​ ​b​a​n​a​n​a​{​{​|​s​}​}​"
-	 * @param {string | number | boolean} 0
-	*/
-	PLURAL: string
-	/**
 	 * "{​{​z​e​ro​|​o​n​e​|​t​w​o​|​f​e​w​|​m​a​n​y​|​o​t​h​e​r​}​}"
 	 * @param {string | number | boolean} 0
-	 */
+	*/
 	PLURAL_FULL: string
+	nested: {
+		/**
+		 * "h​e​l​l​o​ ​b​a​n​a​n​a​{​{​|​s​}​}​"
+		 * @param {string | number | boolean} 0
+		*/
+		PLURAL: string
+	}
 }
 
 export type TranslationFunctions = {
@@ -37,13 +39,15 @@ export type TranslationFunctions = {
 	 */
 	HI: (arg: { name: string }) => LocalizedString
 	/**
-	 * Hallo {{Banane|Bananen}}
-	 */
-	PLURAL: (arg: string | number | boolean) => LocalizedString
-	/**
 	 * {{zero|one|two|few|many|other}}
-	 */
+	*/
 	PLURAL_FULL: (arg: string | number | boolean) => LocalizedString
+	nested: {
+		/**
+		 * Hallo {{Banane|Bananen}}
+		*/
+		PLURAL: (arg: string | number | boolean) => LocalizedString
+	}
 }
 
 export type Formatters = {}
