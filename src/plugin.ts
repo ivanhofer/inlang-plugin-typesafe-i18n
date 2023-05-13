@@ -2,6 +2,7 @@ import type { InlangConfig } from "@inlang/core/config"
 import type { InlangEnvironment } from "@inlang/core/environment"
 import type * as ast from "@inlang/core/ast"
 import { getConfig, getLocaleInformation } from "typesafe-i18n/config"
+import { experimentalParseMessage, type ParameterPart, type PluralPart } from "typesafe-i18n/parser"
 import { createPlugin } from "@inlang/core/plugin"
 import type { readdir } from "node:fs/promises"
 
@@ -117,14 +118,52 @@ const parseResource = (
 }
 
 const parseMessage = (id: string, value: string): ast.Message => {
-  // TODO: also parse variables
+  const parsedMessage = experimentalParseMessage(value)
+
   return {
     type: "Message",
     id: {
       type: "Identifier",
       name: id,
     },
-    pattern: { type: "Pattern", elements: [{ type: "Text", value: value }] },
+    pattern: {
+      type: "Pattern",
+      elements: parsedMessage.map(part => {
+        switch (part.kind) {
+          case 'parameter':
+            return parseParameter(part)
+          case 'text':
+            return { type: "Text", value: part.content }
+          case 'plural':
+            return parsePlural(part)
+        }
+      })
+    },
+  }
+}
+
+const parseParameter = (parameterPart: ParameterPart): ast.Placeholder => {
+  return {
+    type: "Placeholder",
+    body: {
+      type: 'VariableReference',
+      name: parameterPart.key,
+      metadata: {
+        types: parameterPart.types,
+        optional: parameterPart.optional,
+        transforms: parameterPart.transforms,
+      }
+    }
+  }
+}
+
+const parsePlural = (pluralPart: PluralPart): ast.Text => {
+  return {
+    type: "Text",
+    value: `{{${[pluralPart.zero, pluralPart.one, pluralPart.two, pluralPart.few, pluralPart.many, pluralPart.other]
+      .filter(Boolean)
+      .join('|')
+      }}}`
   }
 }
 
@@ -172,21 +211,33 @@ const serializeResource = (resource: ast.Resource): string => {
   return JSON.stringify(json, null, 3)
 }
 
-function serializeMessage(message: ast.Message): [id: string, value: string] {
+const serializeMessage = (message: ast.Message): [id: string, value: string] => {
   return [message.id.name, serializePattern(message.pattern)]
 }
 
-function serializePattern(pattern: ast.Pattern): string {
+const serializePattern = (pattern: ast.Pattern): string => {
   return pattern.elements.map(serializePatternElement).join("")
 }
 
-function serializePatternElement(
+const serializePatternElement = (
   element: ast.Pattern["elements"][number]
-): string {
+): string => {
   switch (element.type) {
     case "Text":
       return element.value
     case "Placeholder":
-      return `{${element.body.name}}`
+      return serializePlaceholder(element)
   }
+}
+
+const serializePlaceholder = ({ body: { name, metadata = {} } }: ast.Placeholder): string => {
+  let str = name
+  if (metadata.optional) str += "?"
+  if (metadata.types?.length > 0) {
+    str += `:${metadata.types.join("|")}`
+  }
+  if (metadata.transforms?.length > 0) {
+    str += `|${metadata.transforms.join("|")}`
+  }
+  return `{${str}}`
 }

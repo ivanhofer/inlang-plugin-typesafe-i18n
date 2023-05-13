@@ -3,7 +3,7 @@ import { describe, test, expect } from "vitest"
 import nodeFs from "node:fs/promises"
 import { query } from "@inlang/core/query"
 import { setupConfig } from '@inlang/core/config'
-import type { Resource } from '@inlang/core/ast'
+import type { Placeholder, Resource } from '@inlang/core/ast'
 import { mockEnvironment, testConfig } from "@inlang/core/test"
 import fs from "node:fs/promises"
 
@@ -46,9 +46,19 @@ describe("plugin", async () => {
     test("should be possible to query a message", () => {
       const message = query(referenceResource).get({ id: "HI" })
       expect(message).toBeDefined()
-      expect(message?.pattern.elements[0].value).toBe(
-        "Hi {name:string}! Please leave a star if you like this project: https://github.com/ivanhofer/typesafe-i18n"
+      expect(message!.pattern.elements[0].value).toBe("Hi ")
+      expect((message!.pattern.elements[1].body as Placeholder)!.name).toBe(
+        "name"
       )
+      expect(message!.pattern.elements[2].value).toBe(
+        "! Please leave a star if you like this project: https://github.com/ivanhofer/typesafe-i18n"
+      )
+    })
+
+    test("should be possible to query a message with plural part", () => {
+      const message = query(referenceResource).get({ id: "PLURAL_FULL" })
+      expect(message).toBeDefined()
+      expect(message!.pattern.elements[0].value).toBe("{{zero|one|two|few|many|other}}")
     })
   })
 
@@ -61,7 +71,11 @@ describe("plugin", async () => {
             type: "Message",
             pattern: {
               type: "Pattern",
-              elements: [{ type: "Text", value: "Newly created message" }],
+              elements: [
+                { type: "Text", value: "Newly created message with " },
+                { type: "Placeholder", body: { type: 'VariableReference', name: "variable" } },
+                { type: "Text", value: "!" },
+              ],
             },
           },
         })
@@ -78,7 +92,8 @@ describe("plugin", async () => {
           `./example/i18n/${config.referenceLanguage}/index.ts`,
           { encoding: "utf-8" }
         )) as string
-      expect(module.includes('"new-message": "Newly created message"')).toBeTruthy()
+
+      expect(module.includes('"new-message": "Newly created message with {variable}!"')).toBeTruthy()
     })
   })
 })

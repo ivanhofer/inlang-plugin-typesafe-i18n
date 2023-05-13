@@ -17,8 +17,18 @@ type RootTranslation = {
 	/**
 	 * H​i​ ​{​n​a​m​e​}​!​ ​P​l​e​a​s​e​ ​l​e​a​v​e​ ​a​ ​s​t​a​r​ ​i​f​ ​y​o​u​ ​l​i​k​e​ ​t​h​i​s​ ​p​r​o​j​e​c​t​:​ ​h​t​t​p​s​:​/​/​g​i​t​h​u​b​.​c​o​m​/​i​v​a​n​h​o​f​e​r​/​t​y​p​e​s​a​f​e​-​i​1​8​n
 	 * @param {string} name
-	 */
+	*/
 	HI: RequiredParams<'name'>
+	/**
+	 * "h​e​l​l​o​ ​b​a​n​a​n​a​{​{​|​s​}​}​"
+	 * @param {string | number | boolean} 0
+	*/
+	PLURAL: string
+	/**
+	 * "{​{​z​e​ro​|​o​n​e​|​t​w​o​|​f​e​w​|​m​a​n​y​|​o​t​h​e​r​}​}"
+	 * @param {string | number | boolean} 0
+	 */
+	PLURAL_FULL: string
 }
 
 export type TranslationFunctions = {
@@ -26,6 +36,14 @@ export type TranslationFunctions = {
 	 * Hi {name}! Please leave a star if you like this project: https://github.com/ivanhofer/typesafe-i18n
 	 */
 	HI: (arg: { name: string }) => LocalizedString
+	/**
+	 * Hallo {{Banane|Bananen}}
+	 */
+	PLURAL: (arg: string | number | boolean) => LocalizedString
+	/**
+	 * {{zero|one|two|few|many|other}}
+	 */
+	PLURAL_FULL: (arg: string | number | boolean) => LocalizedString
 }
 
 export type Formatters = {}
