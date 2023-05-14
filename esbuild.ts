@@ -8,10 +8,13 @@
 import { context } from 'esbuild'
 import { pluginBuildConfig } from "@inlang/core/plugin"
 
+const isDev = !!process.env.DEV
+
 const options = await pluginBuildConfig({
 	entryPoints: ["./src/index.js"],
 	outfile: "./dist/index.js",
-	minify: true,
+	minify: !isDev,
+	sourcemap: true,
 	plugins: [
 		{
 			name: "logger",
@@ -22,7 +25,7 @@ const options = await pluginBuildConfig({
 
 const ctx = await context(options)
 
-if (process.env.DEV) {
+if (isDev) {
 	await ctx.watch()
 	console.info("👀 watching for changes...")
 	process.on('exit', async () => {
