@@ -21,3 +21,9 @@ export async function defineConfig(env) {
   }
 }
 ```
+
+### Limitations
+
+ - [namespaces](https://github.com/ivanhofer/typesafe-i18n/tree/main/packages/generator#namespaces) are currently not supported in the `inlang` Editor
+ - types don't get updated if you make changes to your `BaseTranslation`
+   workaround: to update the types run the [generator](https://github.com/ivanhofer/typesafe-i18n/tree/main/packages/generator) in CI after the Editor pushes new Messages to the repository
