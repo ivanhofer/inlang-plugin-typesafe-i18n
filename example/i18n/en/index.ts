@@ -8,6 +8,7 @@ const en: BaseTranslation = {
 		PLURAL: "hello banana{{s}}",
 	},
 	schedule: '{0:Date|simpleDate}',
+	spectators: '{0} live spectator{{s}}',
 }
 
 export default en

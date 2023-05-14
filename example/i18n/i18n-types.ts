@@ -20,6 +20,7 @@ type RootTranslation = {
 		PLURAL: string
 	},
 	schedule: RequiredParams<'0|simpleDate'>
+	spectators: RequiredParams<'0'>
 }
 
 export type TranslationFunctions = {
@@ -29,6 +30,7 @@ export type TranslationFunctions = {
 		PLURAL: (arg: string | number | boolean) => LocalizedString
 	}
 	schedule: (arg0: Date) => LocalizedString
+	spectators: (arg0: string | number | boolean) => LocalizedString
 }
 
 export type Formatters = {}

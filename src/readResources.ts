@@ -114,6 +114,7 @@ const parseParameter = (parameterPart: ParameterPart): ast.Placeholder => {
 	}
 }
 
+// TODO: make this more robust
 const parsePlural = (pluralPart: PluralPart): ast.Text => {
 	return {
 		type: "Text",

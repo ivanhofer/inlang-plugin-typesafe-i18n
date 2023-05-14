@@ -8,6 +8,7 @@ const de: Translation = {
 		PLURAL: "Hallo {{Banane|Bananen}}",
 	},
 	schedule: '{0|simpleDate}',
+	spectators: '{0} Zuschauer live',
 }
 
 export default de
