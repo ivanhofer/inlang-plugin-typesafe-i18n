@@ -13,9 +13,9 @@
     "prepare": "husky install"
   },
   "devDependencies": {
-    "@inlang/core": "^0.8.2",
+    "@inlang/core": "^0.8.3",
     "concurrently": "^8.0.1",
-    "esbuild": "^0.17.18",
+    "esbuild": "^0.17.19",
     "husky": "^8.0.3",
     "memfs": "^3.5.1",
     "tsx": "^3.12.7",
