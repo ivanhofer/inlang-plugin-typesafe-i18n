@@ -86,7 +86,7 @@ const serializePlaceholder = ({ body: { name, metadata = {} } }: ast.Placeholder
 		str += `:${metadata.types.join("|")}`
 	}
 	if (metadata.transforms?.length > 0) {
-		str += `|${metadata.transforms.join("|")}`
+		str += `|${metadata.transforms.map(({ name }: any) => name).join("|")}`
 	}
 	return `{${str}}`
 }

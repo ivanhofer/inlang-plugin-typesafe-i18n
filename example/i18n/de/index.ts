@@ -6,7 +6,8 @@ const de: Translation = {
 	PLURAL_FULL: "{{zero|one|two|few|many|other}}",
 	nested: {
 		PLURAL: "Hallo {{Banane|Bananen}}",
-	}
+	},
+	schedule: '{0|simpleDate}',
 }
 
 export default de
