@@ -1,6 +1,9 @@
 # inlang-plugin-typesafe-i18n
 
-This is the official [typesafe-i18n](https://github.com/ivanhofer/typesafe-i18n) plugin for [inlang](https://inlang.com).
+This is the official [typesafe-i18n](https://github.com/ivanhofer/typesafe-i18n) plugin for [inlang](https://inlang.com).\
+You can use this plugin to read and write resources that can be used in a project with `typesafe-i18n` as the internationalization library.
+
+> It is not meant to be used together with the [SDK](https://inlang.com/documentation/sdk/overview) inlang provides.
 
 ## Usage
 
