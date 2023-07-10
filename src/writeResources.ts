@@ -19,16 +19,14 @@ export async function writeResources({
 
 	for (const resource of resources) {
 		const locale = resource.languageTag.name
-		const dictionary = serializeResource(resource)
+		const isReferenceLanguage = locale === config.referenceLanguage
+		const dictionary = serializeResource(resource, isReferenceLanguage)
 
-		const type =
-			locale === config.referenceLanguage ? "BaseTranslation" : "Translation"
+		const type = isReferenceLanguage ? "BaseTranslation" : "Translation"
 		// TODO: path could be wrong if esmImports=true
-		// TODO: export utility type from `typesafe-i18n` to get correct string e.g. with `satisfies` syntax
-		const template = `import type { ${type} } from '${resolve(
-			typesafeI18nConfig.outputPath,
-			typesafeI18nConfig.typesFileName
-		)}'
+		// TODO: write correct path for namespaces
+		// TODO: export utility type from `typesafe-i18n` to get correct string e.g. with `satisfies`
+		const template = `import type { ${type} } from '../${typesafeI18nConfig.typesFileName}'
 const ${locale}: ${type} = ${dictionary}
 
 export default ${locale}`
@@ -40,10 +38,10 @@ export default ${locale}`
 	}
 }
 
-const serializeResource = (resource: ast.Resource): string => {
+const serializeResource = (resource: ast.Resource, isReferenceLanguage: boolean): string => {
 	const json = {} as Record<string, any>
 
-	resource.body.map(serializeMessage).forEach(([id, value]) => {
+	resource.body.map((message) => serializeMessage(message, isReferenceLanguage)).forEach(([id, value]) => {
 		const idParts = id.split('.')
 		let current = json
 		for (let i = 0; i < idParts.length; i++) {
@@ -60,35 +58,38 @@ const serializeResource = (resource: ast.Resource): string => {
 	return JSON.stringify(json, null, 3)
 }
 
-const serializeMessage = (message: ast.Message): [id: string, value: string] => {
-	return [message.id.name, serializePattern(message.pattern)]
+const serializeMessage = (message: ast.Message, isReferenceLanguage: boolean): [id: string, value: string] => {
+	return [message.id.name, serializePattern(message.pattern, isReferenceLanguage)]
 }
 
-const serializePattern = (pattern: ast.Pattern): string => {
-	return pattern.elements.map(serializePatternElement).join("")
+const serializePattern = (pattern: ast.Pattern, isReferenceLanguage: boolean): string => {
+	return pattern.elements.map((patternElement) => serializePatternElement(patternElement, isReferenceLanguage)).join("")
 }
 
 const serializePatternElement = (
-	element: ast.Pattern["elements"][number]
+	element: ast.Pattern["elements"][number],
+	isReferenceLanguage: boolean
 ): string => {
 	switch (element.type) {
 		case "Text":
 			return element.value
 		case "Placeholder":
-			return serializePlaceholder(element)
+			return serializePlaceholder(element, isReferenceLanguage)
 	}
 }
 
-const serializePlaceholder = ({ body: { name, metadata = {} } }: ast.Placeholder): string => {
+const serializePlaceholder = ({ body: { name, metadata = {} } }: ast.Placeholder, isReferenceLanguage: boolean): string => {
 	let str = name
-	if (metadata.optional) str += "?"
-	if (metadata.types?.length > 0) {
-		if (!(metadata.types.length === 3
-			&& metadata.types.includes("string")
-			&& metadata.types.includes("number")
-			&& metadata.types.includes("boolean"))
-		) {
-			str += `:${metadata.types[0]}`
+	if (isReferenceLanguage) {
+		if (metadata.optional) str += "?"
+		if (metadata.types?.length > 0) {
+			if (!(metadata.types.length === 3
+				&& metadata.types.includes("string")
+				&& metadata.types.includes("number")
+				&& metadata.types.includes("boolean"))
+			) {
+				str += `:${metadata.types[0]}`
+			}
 		}
 	}
 	if (metadata.transforms?.length > 0) {
