@@ -44,7 +44,7 @@ const getDictionaryForLocale = async (
 		.join("\n")
 	const withoutTypes = withoutImports
 		.replace(/const\s\w[^\s]+\s*(:\s*\w[^\s]+\s*)=/g, (match, type) => match.replace(type, ""))
-	const withoutSatisfies = withoutTypes.replace(/ satisfies.*\/n/g, "\n")
+	const withoutSatisfies = withoutTypes.replace(/\ssatisfies\s[^\s]*\s/g, "")
 
 	const moduleWithMimeType = "data:application/javascript," + encodeURIComponent(withoutSatisfies)
 	return (await import(/* @vite-ignore */ moduleWithMimeType)).default
