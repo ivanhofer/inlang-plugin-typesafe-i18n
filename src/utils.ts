@@ -12,7 +12,12 @@ export const patchFs = (fs: InlangEnvironment["$fs"]) => {
 				name,
 				isDirectory: () => !(name.endsWith('.ts') || name.endsWith('.js')),
 			}))
-		}
+		},
+		readFile: async (path: string) => {
+			const result = await fs.readFile(path)
+
+			return Buffer.from(result as unknown as string).toString()
+		},
 	} as unknown as InlangEnvironment["$fs"]
 }
 
