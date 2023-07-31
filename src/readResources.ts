@@ -36,7 +36,7 @@ const getDictionaryForLocale = async (
 	locale: string
 ) => {
 	// TODO: create a better, less hacky version
-	const baseDictionary = await $fs.readFile(resolve(outputPath, `${locale}/index.ts`), { encoding: "utf-8" })
+	const baseDictionary = await $fs.readFile(resolve(outputPath, `${locale}/index.ts`), { encoding: "utf-8" }) as string
 
 	const withoutImports = baseDictionary
 		.split("\n")
