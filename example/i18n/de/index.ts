@@ -9,6 +9,10 @@ const de: Translation = {
 	},
 	schedule: '{0|simpleDate}',
 	spectators: '{0} Zuschauer live',
+	array: {
+		work: 'auch',
+		values: ['a', 'b', 'c']
+	}
 }
 
 export default de

@@ -1,23 +1,14 @@
-import { getLocaleInformation } from "typesafe-i18n/config"
-import { createPlugin } from "@inlang/core/plugin"
-import { readResources } from './readResources.js'
-import { writeResources } from './writeResources.js'
-import { patchFs } from './utils.js'
+import type { Plugin } from "@inlang/plugin"
+import { loadMessages } from './loadMessages.js'
+import { saveMessages } from './writeMessages.js'
 
-// issues:
-//  - real typescript compilation does not work
-
-export const plugin = createPlugin(({ env }) => ({
-  id: "ivanhofer.inlang-plugin-typesafe-i18n",
-  async config() {
-    // @ts-expect-error - the types slightly differ; should work regardless
-    const { base, locales } = await getLocaleInformation(patchFs(env.$fs))
-
-    return {
-      referenceLanguage: base,
-      languages: locales,
-      readResources: ({ config }) => readResources({ config, ...env }),
-      writeResources: ({ config, resources }) => writeResources({ config, resources, ...env }),
-    }
+export const plugin = {
+  meta: {
+    id: "ivanhofer.inlang-plugin-typesafe-i18n",
+    displayName: { en: "typesafe-i18n plugin" },
+    description: { en: "A plugin for inlang that uses typesafe-i18n to read and write messages" },
+    keywords: ["inlang", "plugin", "typesafe-i18n", "TypeScript"],
   },
-}))
+  loadMessages,
+  saveMessages,
+} satisfies Plugin

@@ -10,10 +10,13 @@
     "vitest:watch": "vitest",
     "tsc": "tsc --noEmit",
     "tsc:watch": "tsc --watch --noEmit",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "typesafe-i18n": "typesafe-i18n"
   },
   "devDependencies": {
-    "@inlang/core": "^0.9.2",
+    "@inlang/messages": "../inlang/source-code/core/messages",
+    "@inlang/module": "../inlang/source-code/core/module",
+    "@inlang/plugin": "../inlang/source-code/core/plugin",
     "concurrently": "^8.2.0",
     "esbuild": "^0.18.17",
     "husky": "^8.0.3",

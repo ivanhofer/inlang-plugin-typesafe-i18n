@@ -14,23 +14,98 @@ export type Translation = RootTranslation
 export type Translations = RootTranslation
 
 type RootTranslation = {
+	/**
+	 * H​i​ ​{​n​a​m​e​}​!​ ​P​l​e​a​s​e​ ​l​e​a​v​e​ ​a​ ​s​t​a​r​ ​i​f​ ​y​o​u​ ​l​i​k​e​ ​t​h​i​s​ ​p​r​o​j​e​c​t​:​ ​h​t​t​p​s​:​/​/​g​i​t​h​u​b​.​c​o​m​/​i​v​a​n​h​o​f​e​r​/​t​y​p​e​s​a​f​e​-​i​1​8​n
+	 * @param {string} name
+	 */
 	HI: RequiredParams<'name'>
+	/**
+	 * {​{​z​e​r​o​|​o​n​e​|​t​w​o​|​f​e​w​|​m​a​n​y​|​o​t​h​e​r​}​}
+	 */
 	PLURAL_FULL: string
 	nested: {
+		/**
+		 * h​e​l​l​o​ ​b​a​n​a​n​a​{​{​s​}​}
+		 */
 		PLURAL: string
-	},
+	}
+	/**
+	 * {​0​|​s​i​m​p​l​e​D​a​t​e​}
+	 * @param {Date} 0
+	 */
 	schedule: RequiredParams<'0|simpleDate'>
+	/**
+	 * {​0​}​ ​l​i​v​e​ ​s​p​e​c​t​a​t​o​r​{​{​s​}​}
+	 * @param {string | number | boolean} 0
+	 */
 	spectators: RequiredParams<'0'>
+	array: {
+		/**
+		 * t​o​o
+		 */
+		work: string
+		values: {
+			/**
+			 * a
+			 */
+			'0': string
+			/**
+			 * b
+			 */
+			'1': string
+			/**
+			 * c
+			 */
+			'2': string
+		}
+	}
 }
 
 export type TranslationFunctions = {
+	/**
+	 * Hi {name}! Please leave a star if you like this project: https://github.com/ivanhofer/typesafe-i18n
+	 */
 	HI: (arg: { name: string }) => LocalizedString
-	PLURAL_FULL: (arg: string | number | boolean) => LocalizedString
+	/**
+	 * {{zero|one|two|few|many|other}}
+	 */
+	PLURAL_FULL: (arg0: number | string | boolean) => LocalizedString
 	nested: {
-		PLURAL: (arg: string | number | boolean) => LocalizedString
+		/**
+		 * hello banana{{s}}
+		 */
+		PLURAL: (arg0: number | string | boolean) => LocalizedString
 	}
+	/**
+	 * {0|simpleDate}
+	 */
 	schedule: (arg0: Date) => LocalizedString
+	/**
+	 * {0} live spectator{{s}}
+	 */
 	spectators: (arg0: string | number | boolean) => LocalizedString
+	array: {
+		/**
+		 * too
+		 */
+		work: () => LocalizedString
+		values: {
+			/**
+			 * a
+			 */
+			'0': () => LocalizedString
+			/**
+			 * b
+			 */
+			'1': () => LocalizedString
+			/**
+			 * c
+			 */
+			'2': () => LocalizedString
+		}
+	}
 }
 
-export type Formatters = {}
+export type Formatters = {
+	simpleDate: (value: Date) => unknown
+}
