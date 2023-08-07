@@ -2,11 +2,11 @@ import nodeFs from "node:fs/promises"
 import { createMockNodeishFs } from "@inlang/plugin/test"
 import fs from "node:fs/promises"
 
-export const setupEnvironment = async () => {
+export const setupEnvironment = async (copyDictionaries = true) => {
 	const $fs = await createMockNodeishFs({
 		copyDirectory: {
 			fs,
-			paths: ["./dist", "./example"],
+			paths: ["./dist", copyDictionaries && "./example"].filter(Boolean) as string[],
 		}
 	})
 

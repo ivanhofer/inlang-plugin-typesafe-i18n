@@ -30,7 +30,7 @@ export declare const plugin: {
             match: Record<string, string>;
         }[]>;
     }[]>;
-    saveMessages: (options: {
+    saveMessages: ({ nodeishFs, messages }: {
         messages: {
             id: string;
             selectors: {

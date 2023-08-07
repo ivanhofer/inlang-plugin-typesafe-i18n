@@ -31,7 +31,7 @@ declare const _default: {
                 match: Record<string, string>;
             }[]>;
         }[]>;
-        saveMessages: (options: {
+        saveMessages: ({ nodeishFs, messages }: {
             messages: {
                 id: string;
                 selectors: {

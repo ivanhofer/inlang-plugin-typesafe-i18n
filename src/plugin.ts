@@ -1,6 +1,6 @@
 import type { Plugin } from "@inlang/plugin"
 import { loadMessages } from './loadMessages.js'
-import { saveMessages } from './writeMessages.js'
+import { saveMessages } from './saveMessages.js'
 
 export const plugin = {
   meta: {
