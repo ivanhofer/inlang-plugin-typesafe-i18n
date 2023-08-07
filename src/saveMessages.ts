@@ -4,6 +4,7 @@ import { getConfig } from 'typesafe-i18n/config'
 import type { BaseTranslation } from 'typesafe-i18n'
 import set from 'just-safe-set'
 import dedent from 'dedent'
+import { globalMetadata, type ParameterMetadata } from './loadMessages.js'
 
 type NodeishFs = Parameters<NonNullable<Plugin['saveMessages']>>[0]['nodeishFs']
 
@@ -27,7 +28,8 @@ export const saveMessages = (async ({ nodeishFs, messages }) => {
 		const template = dedent`
 			import type { ${type} } from '../${typesafeI18nConfig.typesFileName}'
 
-			const ${locale}: ${type} = ${JSON.stringify(dictionary, null, 3)}
+			const ${locale}: ${type} = ${JSON.stringify(dictionary, null, 3)
+				.split(/\n/).map(text => '   ' + text).join('\n')}
 
 			export default ${locale}
 		`
@@ -63,7 +65,7 @@ const messagesToDictionaryMap = (messages: Message[], baseLocale: string): Recor
 		for (const languageTag in message.body) {
 			const dictionary = dictionaries[languageTag] ??= {}
 			const isBaseLocale = languageTag === baseLocale
-			set(dictionary, message.id, serializeVariants(message.body[languageTag], isBaseLocale))
+			set(dictionary, message.id, serializeVariants(message.body[languageTag], globalMetadata[message.id], isBaseLocale))
 		}
 	}
 
@@ -72,30 +74,32 @@ const messagesToDictionaryMap = (messages: Message[], baseLocale: string): Recor
 
 // ------------------------------------------------------------------------------------------------
 
-const serializeVariants = (variants: Variant[], isBaseLocale: boolean): string => {
-	return serializePattern(variants[0]?.pattern || [], isBaseLocale)
+const serializeVariants = (variants: Variant[], metadataForLocale: Record<string, ParameterMetadata | undefined>, isBaseLocale: boolean): string => {
+	return serializePattern(variants[0]?.pattern || [], metadataForLocale, isBaseLocale)
 }
 
-const serializePattern = (pattern: Pattern, isBaseLocale: boolean): string => {
-	return pattern.map((patternElement) => serializePatternElement(patternElement, isBaseLocale)).join("")
+const serializePattern = (pattern: Pattern, metadataForLocale: Record<string, ParameterMetadata | undefined>, isBaseLocale: boolean): string => {
+	return pattern.map((patternElement) => serializePatternElement(patternElement, metadataForLocale, isBaseLocale)).join("")
 }
 
 const serializePatternElement = (
 	element: Pattern[number],
+	metadataForLocale: Record<string, ParameterMetadata | undefined>,
 	isReferenceLanguage: boolean
 ): string => {
 	switch (element.type) {
 		case "Text":
 			return element.value
 		case "VariableReference":
-			return serializeParameter(element, isReferenceLanguage)
+			return serializeParameter(element, metadataForLocale, isReferenceLanguage)
 	}
 }
 
-const serializeParameter = ({ name }: VariableReference, isReferenceLanguage: boolean): string => {
+const serializeParameter = ({ name }: VariableReference, metadataForLocale: Record<string, ParameterMetadata | undefined>, isReferenceLanguage: boolean): string => {
 	let str = name
-	const metadata = {} as any // TODO: get metadata somehow
-	if (isReferenceLanguage) {
+
+	const metadata = (metadataForLocale || {})[name]
+	if (isReferenceLanguage && metadata) {
 		if (metadata.optional) str += "?"
 		if (metadata.types?.length > 0) {
 			if (!(metadata.types.length === 3
@@ -107,7 +111,7 @@ const serializeParameter = ({ name }: VariableReference, isReferenceLanguage: bo
 			}
 		}
 	}
-	if (metadata.transforms?.length > 0) {
+	if (metadata?.transforms?.length > 0) {
 		str += `|${metadata.transforms.map(({ name }: any) => name).join("|")}`
 	}
 	return `{${str}}`

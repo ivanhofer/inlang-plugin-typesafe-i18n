@@ -19,3 +19,5 @@ export declare const loadMessages: ({ nodeishFs, languageTags }: {
         match: Record<string, string>;
     }[]>;
 }[]>;
+export type ParameterMetadata = any;
+export declare const globalMetadata: Record<string, Record<string, ParameterMetadata>>;

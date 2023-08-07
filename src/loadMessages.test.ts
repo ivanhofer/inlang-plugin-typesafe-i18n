@@ -1,6 +1,6 @@
 import { describe, test, expect } from "vitest"
 import { setupEnvironment } from './utils/test.utils.js'
-import { loadMessages } from './loadMessages.js'
+import { globalMetadata, loadMessages } from './loadMessages.js'
 
 const $fs = await setupEnvironment()
 
@@ -54,6 +54,54 @@ describe("loadMessages", () => {
               "value": "{{zero|one|two|few|many|other}}",
             },
           ])
+      })
+
+      test("should set global metadata accordingly", async () => {
+        expect(globalMetadata)
+          .toMatchInlineSnapshot(`
+            {
+              "HI": {
+                "name": {
+                  "optional": false,
+                  "transforms": [],
+                  "types": [
+                    "string",
+                  ],
+                },
+              },
+              "PLURAL_FULL": {},
+              "array.values.0": {},
+              "array.values.1": {},
+              "array.values.2": {},
+              "array.work": {},
+              "nested.PLURAL": {},
+              "schedule": {
+                "0": {
+                  "optional": false,
+                  "transforms": [
+                    {
+                      "kind": "formatter",
+                      "name": "simpleDate",
+                    },
+                  ],
+                  "types": [
+                    "Date",
+                  ],
+                },
+              },
+              "spectators": {
+                "0": {
+                  "optional": false,
+                  "transforms": [],
+                  "types": [
+                    "string",
+                    "number",
+                    "boolean",
+                  ],
+                },
+              },
+            }
+          `)
       })
     })
   })

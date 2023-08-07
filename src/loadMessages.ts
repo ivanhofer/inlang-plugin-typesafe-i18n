@@ -33,12 +33,12 @@ export const loadMessages = (async ({ nodeishFs, languageTags }) => {
 		})
 	)).filter(Boolean) as DictionaryMetadata[]
 
-	return getMessagesFromDictionaries(dictionaries)
+	return getMessagesFromDictionaries(dictionaries, typesafeI18nConfig.baseLocale)
 }) satisfies Plugin['loadMessages']
 
 // ------------------------------------------------------------------------------------------------
 
-const getMessagesFromDictionaries = (dictionaries: DictionaryMetadata[]): Message[] => {
+const getMessagesFromDictionaries = (dictionaries: DictionaryMetadata[], baseLocale: string): Message[] => {
 	const messages: Message[] = []
 	for (const { languageTag, dictionary } of dictionaries) {
 		const entries = getFlatDictionary(dictionary)
@@ -49,7 +49,8 @@ const getMessagesFromDictionaries = (dictionaries: DictionaryMetadata[]): Messag
 				messages.push(foundMessage)
 			}
 
-			foundMessage.body[languageTag] = [{ match: {}, pattern: parsePattern(entry.value) }]
+			const isBaseLocale = languageTag === baseLocale
+			foundMessage.body[languageTag] = [{ match: {}, pattern: parsePattern(entry.value, globalMetadata[entry.id] ??= {}, isBaseLocale) }]
 		}
 	}
 
@@ -74,13 +75,17 @@ const getFlatDictionaryEntry = (id: string, value: BaseTranslation): FlattenedDi
 
 // ------------------------------------------------------------------------------------------------
 
-const parsePattern = (value: string): Pattern => {
+export type ParameterMetadata = any
+
+export const globalMetadata: Record<string, Record<string, ParameterMetadata>> = {}
+
+const parsePattern = (value: string, metadataForLocale: Record<string, ParameterMetadata | undefined>, isBaseLocale: boolean): Pattern => {
 	const parsedMessage = experimentalParseMessage(value)
 
 	return parsedMessage.map(part => {
 		switch (part.kind) {
 			case 'parameter':
-				return parseParameter(part)
+				return parseParameter(part, metadataForLocale, isBaseLocale)
 			case 'text':
 				return { type: "Text", value: part.content }
 			case 'plural':
@@ -90,16 +95,19 @@ const parsePattern = (value: string): Pattern => {
 
 }
 
-const parseParameter = (parameterPart: ParameterPart): VariableReference => {
+const parseParameter = (parameterPart: ParameterPart, metadataForLocale: Record<string, ParameterMetadata | undefined>, isBaseLocale: boolean): VariableReference => {
+
+	if (isBaseLocale) {
+		metadataForLocale[parameterPart.key] = {
+			types: parameterPart.types,
+			optional: parameterPart.optional,
+			transforms: parameterPart.transforms,
+		}
+	}
+
 	return {
 		type: 'VariableReference',
 		name: parameterPart.key,
-		// TODO: find a way to add metadata
-		// metadata: {
-		// 	types: parameterPart.types,
-		// 	optional: parameterPart.optional,
-		// 	transforms: parameterPart.transforms,
-		// }
 	}
 }
 
