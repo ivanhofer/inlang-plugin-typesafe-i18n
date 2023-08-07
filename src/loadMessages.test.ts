@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest"
-import { setupEnvironment } from './test.utils.js'
+import { setupEnvironment } from './utils/test.utils.js'
 import { loadMessages } from './loadMessages.js'
 
 const $fs = await setupEnvironment()

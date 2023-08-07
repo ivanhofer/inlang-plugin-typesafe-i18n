@@ -1,7 +1,7 @@
 declare const _default: {
     plugins: {
         meta: {
-            id: "ivanhofer.inlang-plugin-typesafe-i18n";
+            id: string;
             displayName: {
                 en: string;
             };

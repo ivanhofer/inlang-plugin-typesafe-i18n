@@ -2,7 +2,7 @@ import type { Message, Plugin } from "@inlang/plugin"
 import type { Pattern, Text, VariableReference } from "@inlang/messages"
 import { getConfig } from 'typesafe-i18n/config'
 import type { BaseTranslation } from 'typesafe-i18n'
-import { getDictionaryForLocale, patchFs } from './typesafe-i18n.utils.js'
+import { getDictionaryForLocale, patchFs } from './utils/typesafe-i18n.utils.js'
 import { experimentalParseMessage, type ParameterPart, type PluralPart } from 'typesafe-i18n/parser'
 
 type DictionaryMetadata = {
