@@ -4,7 +4,7 @@ import { globalMetadata, loadMessages } from './loadMessages.js'
 
 const $fs = await setupEnvironment()
 
-const defaultArgs = { nodeishFs: $fs, options: undefined }
+const defaultArgs = { nodeishFs: $fs, settings: undefined }
 
 describe("loadMessages", () => {
   test("should not fail if trying to read not present languageTag", async () => {
@@ -16,7 +16,7 @@ describe("loadMessages", () => {
 
     test("should include all languageTags", async () => {
       for (const message of messages) {
-        expect(Object.keys(message.body)).toEqual(['en', 'de'])
+        expect(message.variants.map(({ languageTag }) => languageTag)).toEqual(['en', 'de'])
       }
     })
 
@@ -29,7 +29,7 @@ describe("loadMessages", () => {
 
     describe("parsing", async () => {
       test("should parse a message correctly", async () => {
-        expect(messages.find(({ id }) => id === 'array.work')!.body['en'][0].pattern)
+        expect(messages.find(({ id }) => id === 'array.work')!.variants.find(({ languageTag }) => languageTag === 'en')!.pattern)
           .toEqual([{
             "type": "Text",
             "value": "too",
@@ -37,7 +37,7 @@ describe("loadMessages", () => {
       })
 
       test("should parse parameters correctly", async () => {
-        expect(messages.find(({ id }) => id === 'schedule')!.body['en'][0].pattern)
+        expect(messages.find(({ id }) => id === 'schedule')!.variants.find(({ languageTag }) => languageTag === 'en')!.pattern)
           .toEqual([
             {
               "type": "VariableReference",
@@ -47,7 +47,7 @@ describe("loadMessages", () => {
       })
 
       test("should parse plural rules correctly", async () => {
-        expect(messages.find(({ id }) => id === 'PLURAL_FULL')!.body['en'][0].pattern)
+        expect(messages.find(({ id }) => id === 'PLURAL_FULL')!.variants.find(({ languageTag }) => languageTag === 'en')!.pattern)
           .toEqual([
             {
               "type": "Text",

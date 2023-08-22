@@ -1,17 +1,25 @@
 export declare const plugin: {
     meta: {
-        id: string;
+        id: "ivanhofer.plugin.typesafe-i18n";
         displayName: {
             en: string;
         };
         description: {
             en: string;
         };
-        keywords: string[];
+        marketplace: {
+            publisherName: string;
+            publisherIcon: string;
+            linkToReadme: {
+                en: string;
+            };
+            icon: string;
+            keywords: string[];
+        };
     };
     loadMessages: ({ nodeishFs, languageTags }: {
-        languageTags: readonly string[];
-        options: unknown;
+        languageTags: string[];
+        settings: unknown;
         nodeishFs: import("@inlang/plugin").NodeishFilesystemSubset;
     }) => Promise<{
         id: string;
@@ -19,7 +27,7 @@ export declare const plugin: {
             type: "VariableReference";
             name: string;
         }[];
-        body: Record<string, {
+        variants: {
             pattern: ({
                 type: "Text";
                 value: string;
@@ -27,8 +35,9 @@ export declare const plugin: {
                 type: "VariableReference";
                 name: string;
             })[];
+            languageTag: string;
             match: Record<string, string>;
-        }[]>;
+        }[];
     }[]>;
     saveMessages: ({ nodeishFs, messages }: {
         messages: {
@@ -37,7 +46,7 @@ export declare const plugin: {
                 type: "VariableReference";
                 name: string;
             }[];
-            body: Record<string, {
+            variants: {
                 pattern: ({
                     type: "Text";
                     value: string;
@@ -45,10 +54,11 @@ export declare const plugin: {
                     type: "VariableReference";
                     name: string;
                 })[];
+                languageTag: string;
                 match: Record<string, string>;
-            }[]>;
+            }[];
         }[];
-        options: unknown;
+        settings: unknown;
         nodeishFs: import("@inlang/plugin").NodeishFilesystemSubset;
     }) => Promise<void>;
 };

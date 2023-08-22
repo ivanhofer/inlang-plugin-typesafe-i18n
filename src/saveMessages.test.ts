@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest"
 import { setupEnvironment } from './utils/test.utils.js'
 import { saveMessages } from './saveMessages.js'
-import type { Message, Pattern } from '@inlang/messages'
+import type { Message, Pattern } from '@inlang/plugin'
 import { globalMetadata } from './loadMessages.js'
 
 describe("saveMessages", () => {
@@ -20,7 +20,7 @@ describe("saveMessages", () => {
     }
 
     await saveMessages({
-      nodeishFs: $fs, options: undefined, messages: [
+      nodeishFs: $fs, settings: undefined, messages: [
         createMessage('key', {
           en: [{ type: 'Text', value: 'Welcome!' }],
           de: [{ type: 'Text', value: 'Willkommen!' }],
@@ -97,9 +97,8 @@ describe("saveMessages", () => {
 const createMessage = (id: string, patterns: Record<string, Pattern>): Message => ({
   id,
   selectors: [],
-  body: Object.fromEntries(
-    Object.entries(patterns)
-      .map(([languageTag, patterns]) =>
-        ([languageTag, [{ match: {}, pattern: patterns }]])
-      ))
+  variants: Object.entries(patterns)
+    .map(([languageTag, patterns]) =>
+      ({ languageTag, match: {}, pattern: patterns })
+    )
 })

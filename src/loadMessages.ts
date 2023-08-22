@@ -1,5 +1,5 @@
 import type { Message, Plugin } from "@inlang/plugin"
-import type { Pattern, Text, VariableReference } from "@inlang/messages"
+import type { Pattern, Text, VariableReference } from "@inlang/plugin"
 import { getConfig } from 'typesafe-i18n/config'
 import type { BaseTranslation } from 'typesafe-i18n'
 import { getDictionaryForLocale, patchFs } from './utils/typesafe-i18n.utils.js'
@@ -45,12 +45,12 @@ const getMessagesFromDictionaries = (dictionaries: DictionaryMetadata[], baseLoc
 		for (const entry of entries) {
 			let foundMessage = messages.find(({ id }) => id === entry.id)
 			if (!foundMessage) {
-				foundMessage = { id: entry.id, selectors: [], body: {} }
+				foundMessage = { id: entry.id, selectors: [], variants: [] }
 				messages.push(foundMessage)
 			}
 
 			const isBaseLocale = languageTag === baseLocale
-			foundMessage.body[languageTag] = [{ match: {}, pattern: parsePattern(entry.value, globalMetadata[entry.id] ??= {}, isBaseLocale) }]
+			foundMessage.variants.push({ languageTag, match: {}, pattern: parsePattern(entry.value, globalMetadata[entry.id] ??= {}, isBaseLocale) })
 		}
 	}
 

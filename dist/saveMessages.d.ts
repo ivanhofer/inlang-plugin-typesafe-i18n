@@ -5,7 +5,7 @@ export declare const saveMessages: ({ nodeishFs, messages }: {
             type: "VariableReference";
             name: string;
         }[];
-        body: Record<string, {
+        variants: {
             pattern: ({
                 type: "Text";
                 value: string;
@@ -13,9 +13,10 @@ export declare const saveMessages: ({ nodeishFs, messages }: {
                 type: "VariableReference";
                 name: string;
             })[];
+            languageTag: string;
             match: Record<string, string>;
-        }[]>;
+        }[];
     }[];
-    options: unknown;
+    settings: unknown;
     nodeishFs: import("@inlang/plugin").NodeishFilesystemSubset;
 }) => Promise<void>;

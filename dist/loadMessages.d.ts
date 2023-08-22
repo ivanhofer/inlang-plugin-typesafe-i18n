@@ -1,6 +1,6 @@
 export declare const loadMessages: ({ nodeishFs, languageTags }: {
-    languageTags: readonly string[];
-    options: unknown;
+    languageTags: string[];
+    settings: unknown;
     nodeishFs: import("@inlang/plugin").NodeishFilesystemSubset;
 }) => Promise<{
     id: string;
@@ -8,7 +8,7 @@ export declare const loadMessages: ({ nodeishFs, languageTags }: {
         type: "VariableReference";
         name: string;
     }[];
-    body: Record<string, {
+    variants: {
         pattern: ({
             type: "Text";
             value: string;
@@ -16,8 +16,9 @@ export declare const loadMessages: ({ nodeishFs, languageTags }: {
             type: "VariableReference";
             name: string;
         })[];
+        languageTag: string;
         match: Record<string, string>;
-    }[]>;
+    }[];
 }[]>;
 export type ParameterMetadata = any;
 export declare const globalMetadata: Record<string, Record<string, ParameterMetadata>>;

@@ -1,18 +1,26 @@
 declare const _default: {
     plugins: {
         meta: {
-            id: string;
+            id: "ivanhofer.plugin.typesafe-i18n";
             displayName: {
                 en: string;
             };
             description: {
                 en: string;
             };
-            keywords: string[];
+            marketplace: {
+                publisherName: string;
+                publisherIcon: string;
+                linkToReadme: {
+                    en: string;
+                };
+                icon: string;
+                keywords: string[];
+            };
         };
         loadMessages: ({ nodeishFs, languageTags }: {
-            languageTags: readonly string[];
-            options: unknown;
+            languageTags: string[];
+            settings: unknown;
             nodeishFs: import("@inlang/plugin").NodeishFilesystemSubset;
         }) => Promise<{
             id: string;
@@ -20,7 +28,7 @@ declare const _default: {
                 type: "VariableReference";
                 name: string;
             }[];
-            body: Record<string, {
+            variants: {
                 pattern: ({
                     type: "Text";
                     value: string;
@@ -28,8 +36,9 @@ declare const _default: {
                     type: "VariableReference";
                     name: string;
                 })[];
+                languageTag: string;
                 match: Record<string, string>;
-            }[]>;
+            }[];
         }[]>;
         saveMessages: ({ nodeishFs, messages }: {
             messages: {
@@ -38,7 +47,7 @@ declare const _default: {
                     type: "VariableReference";
                     name: string;
                 }[];
-                body: Record<string, {
+                variants: {
                     pattern: ({
                         type: "Text";
                         value: string;
@@ -46,10 +55,11 @@ declare const _default: {
                         type: "VariableReference";
                         name: string;
                     })[];
+                    languageTag: string;
                     match: Record<string, string>;
-                }[]>;
+                }[];
             }[];
-            options: unknown;
+            settings: unknown;
             nodeishFs: import("@inlang/plugin").NodeishFilesystemSubset;
         }) => Promise<void>;
     }[];

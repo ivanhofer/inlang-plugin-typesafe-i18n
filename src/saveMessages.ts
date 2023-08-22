@@ -1,4 +1,4 @@
-import type { Message, Pattern, Plugin, VariableReference, Variant } from "@inlang/plugin"
+import type { Message, Pattern, Plugin, VariableReference } from "@inlang/plugin"
 import { patchFs, resolve } from './utils/typesafe-i18n.utils.js'
 import { getConfig } from 'typesafe-i18n/config'
 import type { BaseTranslation } from 'typesafe-i18n'
@@ -62,10 +62,12 @@ const messagesToDictionaryMap = (messages: Message[], baseLocale: string): Recor
 	const dictionaries: Record<string, BaseTranslation> = {}
 
 	for (const message of messages) {
-		for (const languageTag in message.body) {
+		for (const variant of message.variants) {
+			const { languageTag, pattern } = variant
 			const dictionary = dictionaries[languageTag] ??= {}
 			const isBaseLocale = languageTag === baseLocale
-			set(dictionary, message.id, serializeVariants(message.body[languageTag], globalMetadata[message.id], isBaseLocale))
+			// TODO: how to make this work with multiple variants?
+			set(dictionary, message.id, serializePattern(pattern, globalMetadata[message.id], isBaseLocale))
 		}
 	}
 
@@ -73,10 +75,6 @@ const messagesToDictionaryMap = (messages: Message[], baseLocale: string): Recor
 }
 
 // ------------------------------------------------------------------------------------------------
-
-const serializeVariants = (variants: Variant[], metadataForLocale: Record<string, ParameterMetadata | undefined>, isBaseLocale: boolean): string => {
-	return serializePattern(variants[0]?.pattern || [], metadataForLocale, isBaseLocale)
-}
 
 const serializePattern = (pattern: Pattern, metadataForLocale: Record<string, ParameterMetadata | undefined>, isBaseLocale: boolean): string => {
 	return pattern.map((patternElement) => serializePatternElement(patternElement, metadataForLocale, isBaseLocale)).join("")
