@@ -3,8 +3,8 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently -n build,test -c auto \"npm run dev:plugin\" \"npm run tsc:watch\"",
-    "dev:plugin": "DEV=true tsx ./esbuild.ts",
-    "build": "tsx ./esbuild.ts && tsc -p tsconfig.build.json",
+    "dev:plugin": "pnpm build --watch",
+    "build": "inlang module build --entry ./src/index.ts --outdir ./dist",
     "test": "npm run tsc && npm run vitest",
     "vitest": "vitest run",
     "vitest:watch": "vitest",
@@ -14,18 +14,17 @@
     "typesafe-i18n": "typesafe-i18n"
   },
   "devDependencies": {
+    "@inlang/cli": "../inlang/source-code/cli",
     "@inlang/module": "../inlang/source-code/core/module",
     "@inlang/plugin": "../inlang/source-code/core/plugin",
-    "concurrently": "^8.2.0",
+    "concurrently": "^8.2.1",
     "dedent": "^1.5.1",
-    "esbuild": "^0.18.17",
     "husky": "^8.0.3",
     "just-safe-set": "^4.2.1",
-    "memfs": "^4.2.0",
-    "tsx": "^3.12.7",
-    "typesafe-i18n": "^5.25.1",
+    "memfs": "^4.2.1",
+    "typesafe-i18n": "^5.26.1",
     "typescript": "^5.1.6",
-    "vitest": "^0.33.0"
+    "vitest": "^0.34.2"
   },
   "volta": {
     "node": "18.13.0"
